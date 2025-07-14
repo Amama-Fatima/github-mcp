@@ -18,6 +18,11 @@ from .repo_management.branches import (
     get_branch_comparison
 )
 
+from .repo_management.health import (
+    check_repository_health,
+    check_repository_dependencies
+)
+
 
 def register_tools(mcp: FastMCP):
     """Register all GitHub tools with the MCP server"""
@@ -132,3 +137,29 @@ def register_tools(mcp: FastMCP):
             compare_branch: Branch to compare
         """
         return get_branch_comparison(owner, repo, base_branch, compare_branch)
+    
+
+    @mcp.tool()
+    def check_github_repository_health(owner: str, repo: str) -> dict:
+        """
+        Comprehensive repository health check.
+        Scans for missing README, license, security policies, CI/CD setup,
+        dependency management, and other best practices.
+        
+        Args:
+            owner: Repository owner
+            repo: Repository name
+        """
+        return check_repository_health(owner, repo)
+
+    @mcp.tool()
+    def analyze_github_repository_dependencies(owner: str, repo: str) -> dict:
+        """
+        Detailed dependency analysis for supported languages.
+        Analyzes dependency files like package.json, requirements.txt, etc.
+        
+        Args:
+            owner: Repository owner
+            repo: Repository name
+        """
+        return check_repository_dependencies(owner, repo)
