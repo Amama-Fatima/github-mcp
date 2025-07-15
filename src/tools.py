@@ -3,6 +3,7 @@ Tool registration module for the GitHub MCP server.
 """
 from mcp.server.fastmcp import FastMCP
 from typing import List, Dict, Any
+import json
 from .repos import list_repositories, create_repository, get_repository_contents
 from .files import create_file, update_file
 from .git import create_pull_request, create_branch
@@ -35,6 +36,11 @@ from .issue_and_pr_management.pr_reviews import (
     get_pr_review_summary,
     get_pr_diff_summary,
     list_open_prs_for_review
+)
+
+from .contribution.contribution_analytics import (
+    get_user_contribution_analytics,
+    get_repository_contribution_analytics
 )
 
 
@@ -254,3 +260,15 @@ def register_tools(mcp: FastMCP):
         List open PRs that need review with basic info
         """
         return list_open_prs_for_review(owner, repo, limit)
+    
+    @mcp.tool()
+    def get_user_github_analytics(username: str, days: int = 30, include_private: bool = False) -> str:
+        """Get comprehensive contribution analytics for a GitHub user"""
+        result = get_user_contribution_analytics(username, days, include_private)
+        return json.dumps(result, indent=2)
+
+    @mcp.tool()
+    def get_repository_github_analytics(owner: str, repo: str, days: int = 30) -> str:
+        """Get contribution analytics for a specific GitHub repository"""
+        result = get_repository_contribution_analytics(owner, repo, days)
+        return json.dumps(result, indent=2)
