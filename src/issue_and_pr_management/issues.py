@@ -87,7 +87,6 @@ def smart_issue_triage(owner: str, repo: str, issue_number: int) -> dict:
             "details": str(e)
         }
 
-
 def apply_issue_labels_tool(owner: str, repo: str, issue_number: int, labels: list) -> dict:
     """
     Apply labels to an issue
