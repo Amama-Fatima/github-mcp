@@ -144,56 +144,117 @@ def apply_issue_labels_tool(owner: str, repo: str, issue_number: int, labels: li
             "details": str(e)
         }
 
-def get_issue_comments(owner: str, repo: str, issue_number: int) -> dict:
+def get_issue_with_comments(owner: str, repo: str, issue_number: int) -> dict:
     """
-    Get comments for an issue to provide additional context for analysis
+    Get issue details along with all comments for comprehensive analysis
     """
     if not GITHUB_TOKEN:
         return {"error": "⚠️ No GITHUB_TOKEN set in environment."}
     
     try:
-        comments_url = f"https://api.github.com/repos/{owner}/{repo}/issues/{issue_number}/comments"
-        
         with httpx.Client(timeout=TIMEOUT) as client:
+            # Fetch the issue details
+            issue_url = f"https://api.github.com/repos/{owner}/{repo}/issues/{issue_number}"
+            issue_r = client.get(issue_url, headers=GITHUB_HEADERS)
+            issue_r.raise_for_status()
+            issue_data = issue_r.json()
+            
+            # Fetch the comments
+            comments_url = f"https://api.github.com/repos/{owner}/{repo}/issues/{issue_number}/comments"
             comments_r = client.get(comments_url, headers=GITHUB_HEADERS)
             comments_r.raise_for_status()
             comments = comments_r.json()
             
+            # Format issue data
+            formatted_issue = {
+                "number": issue_data.get("number"),
+                "title": issue_data.get("title"),
+                "body": issue_data.get("body", ""),
+                "state": issue_data.get("state"),
+                "author": issue_data.get("user", {}).get("login"),
+                "created_at": issue_data.get("created_at"),
+                "updated_at": issue_data.get("updated_at"),
+                "closed_at": issue_data.get("closed_at"),
+                "labels": [label.get("name") for label in issue_data.get("labels", [])],
+                "assignees": [assignee.get("login") for assignee in issue_data.get("assignees", [])],
+                "milestone": issue_data.get("milestone", {}).get("title") if issue_data.get("milestone") else None,
+                "comments_count": issue_data.get("comments", 0),
+                "reactions": {
+                    "total": issue_data.get("reactions", {}).get("total_count", 0),
+                    "thumbs_up": issue_data.get("reactions", {}).get("+1", 0),
+                    "thumbs_down": issue_data.get("reactions", {}).get("-1", 0),
+                    "laugh": issue_data.get("reactions", {}).get("laugh", 0),
+                    "hooray": issue_data.get("reactions", {}).get("hooray", 0),
+                    "confused": issue_data.get("reactions", {}).get("confused", 0),
+                    "heart": issue_data.get("reactions", {}).get("heart", 0),
+                    "rocket": issue_data.get("reactions", {}).get("rocket", 0),
+                    "eyes": issue_data.get("reactions", {}).get("eyes", 0)
+                },
+                "html_url": issue_data.get("html_url"),
+                "locked": issue_data.get("locked", False),
+                "active_lock_reason": issue_data.get("active_lock_reason")
+            }
+            
+            # Format comments
             formatted_comments = []
             for comment in comments:
                 formatted_comments.append({
+                    "id": comment.get("id"),
                     "author": comment.get("user", {}).get("login"),
                     "body": comment.get("body", ""),
                     "created_at": comment.get("created_at"),
-                    "updated_at": comment.get("updated_at")
+                    "updated_at": comment.get("updated_at"),
+                    "reactions": {
+                        "total": comment.get("reactions", {}).get("total_count", 0),
+                        "thumbs_up": comment.get("reactions", {}).get("+1", 0),
+                        "thumbs_down": comment.get("reactions", {}).get("-1", 0),
+                        "laugh": comment.get("reactions", {}).get("laugh", 0),
+                        "hooray": comment.get("reactions", {}).get("hooray", 0),
+                        "confused": comment.get("reactions", {}).get("confused", 0),
+                        "heart": comment.get("reactions", {}).get("heart", 0),
+                        "rocket": comment.get("reactions", {}).get("rocket", 0),
+                        "eyes": comment.get("reactions", {}).get("eyes", 0)
+                    },
+                    "html_url": comment.get("html_url")
                 })
             
             return {
                 "owner": owner,
                 "repo": repo,
                 "issue_number": issue_number,
-                "comments_count": len(formatted_comments),
+                "issue": formatted_issue,
                 "comments": formatted_comments,
+                "total_comments": len(formatted_comments),
                 "claude_analysis_prompt": """
-                These are the comments on the GitHub issue. Please analyze them to:
+                You have both the original issue and all its comments. Please analyze this complete thread to:
 
-                1. **Additional Context**: What extra information do the comments provide?
-                2. **Issue Status**: Has the issue been resolved, is someone working on it, or is it stalled?
-                3. **Community Engagement**: How active is the discussion?
-                4. **Updated Classification**: Does the comment thread change your initial issue classification?
-                5. **Action Items**: Are there specific actions mentioned that need to be taken?
+                1. **Issue Summary**: Provide a concise summary of what the issue is about
+                2. **Current Status**: Based on the issue state, labels, and comment thread, what's the current status?
+                3. **Key Participants**: Who are the main contributors to this discussion?
+                4. **Resolution Progress**: Has progress been made? Are there proposed solutions?
+                5. **Community Engagement**: How much interest/activity is there around this issue?
+                6. **Priority Assessment**: Based on reactions, labels, and discussion, how urgent/important is this?
+                7. **Next Steps**: What actions would move this issue forward?
+                8. **Classification**: What type of issue is this (bug, feature request, documentation, etc.)?
 
-                Use this information to refine your issue analysis and recommendations.
+                Consider both the original issue content and the evolution of the discussion in the comments.
                 """
             }
             
     except httpx.HTTPStatusError as e:
         return {
             "error": f"HTTP error {e.response.status_code}",
-            "details": e.response.text
+            "details": e.response.text,
+            "owner": owner,
+            "repo": repo,
+            "issue_number": issue_number
         }
     except Exception as e:
         return {
-            "error": "Exception occurred while fetching comments",
-            "details": str(e)
-        }
+            "error": "Exception occurred while fetching issue and comments",
+            "details": str(e),
+            "owner": owner,
+            "repo": repo,
+            "issue_number": issue_number
+        }    
+    

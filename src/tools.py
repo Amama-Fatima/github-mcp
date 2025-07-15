@@ -34,7 +34,7 @@ from .repo_management.health import (
 from .issue_and_pr_management.issues import (
     smart_issue_triage,
     apply_issue_labels_tool,
-    get_issue_comments
+    get_issue_with_comments
 )
 
 from .issue_and_pr_management.pr_reviews import (
@@ -187,7 +187,7 @@ def register_tools(mcp: FastMCP):
         return apply_issue_labels_tool(owner, repo, issue_number, labels)
 
     @mcp.tool()
-    def get_issue_comments_tool(owner: str, repo: str, issue_number: int) -> dict:
+    def get_issue_with_comments_tool(owner: str, repo: str, issue_number: int) -> dict:
         """
         Get comments for an issue to provide additional context for analysis.
         Useful for understanding the full conversation and current status.
@@ -197,7 +197,7 @@ def register_tools(mcp: FastMCP):
             repo: Repository name
             issue_number: Issue number
         """
-        return get_issue_comments(owner, repo, issue_number)
+        return get_issue_with_comments(owner, repo, issue_number)
     
     @mcp.tool()
     def create_pr_review_summary(owner: str, repo: str, pr_number: int) -> Dict[str, Any]:
