@@ -1,5 +1,5 @@
 import httpx
-from .config import GITHUB_TOKEN, GITHUB_HEADERS, TIMEOUT
+from ..config import GITHUB_TOKEN, GITHUB_HEADERS, TIMEOUT
 
 
 def list_repositories(username: str, type: str = "all") -> str:

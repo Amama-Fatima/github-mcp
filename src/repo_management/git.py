@@ -1,5 +1,5 @@
 import httpx
-from .config import GITHUB_TOKEN, GITHUB_HEADERS, TIMEOUT
+from ..config import GITHUB_TOKEN, GITHUB_HEADERS, TIMEOUT
 
 
 def create_pull_request(owner: str, repo: str, title: str, body: str, head: str, base: str = "main") -> str:

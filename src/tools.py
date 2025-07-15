@@ -4,16 +4,17 @@ Tool registration module for the GitHub MCP server.
 from mcp.server.fastmcp import FastMCP
 from typing import Dict, Any
 import json
-from .repos import (
+from .repo_management.repos import (
     list_repositories,
     create_repository,
     get_repository_contents
 )
-from .files import (
+from .file_management.files import (
     create_file,
-    update_file
+    update_file,
+    get_individual_file_contents
 )
-from .git import (
+from .repo_management.git import (
     create_pull_request,
     create_branch,
 )
@@ -80,6 +81,20 @@ def register_tools(mcp: FastMCP):
     def create_github_pull_request(owner: str, repo: str, title: str, body: str, head: str, base: str = "main") -> str:
         """Create a pull request"""
         return create_pull_request(owner, repo, title, body, head, base)
+
+    @mcp.tool()
+    def get_github_Individual_file_contents(owner: str, repo: str, file_path: str, branch: str = "main") -> dict:
+        """
+        Get the actual contents of a specific file from a GitHub repository.
+        Perfect for reading source code, configuration files, documentation, etc.
+        
+        Args:
+            owner: Repository owner (e.g., "abc")
+            repo: Repository name (e.g., "xyz") 
+            file_path: Path to the file (e.g., "tool.py", "src/utils.py", "docs/README.md")
+            branch: Branch name (default: "main")
+        """
+        return get_individual_file_contents(owner, repo, file_path, branch)
 
     @mcp.tool()
     def create_github_branch(owner: str, repo: str, branch_name: str, from_branch: str = "main") -> str:
