@@ -1,7 +1,6 @@
 import httpx
 from ..config import GITHUB_TOKEN, GITHUB_HEADERS, TIMEOUT
 
-
 def list_repositories(username: str, type: str = "all") -> str:
     """List user's repositories. Type can be 'all', 'owner', 'public', 'private'"""
     if not GITHUB_TOKEN:
@@ -42,7 +41,6 @@ def list_repositories(username: str, type: str = "all") -> str:
     except Exception as e:
         return f"❌ Error fetching repositories: {str(e)}"
 
-
 def create_repository(name: str, description: str = "", private: bool = False, auto_init: bool = True) -> str:
     """Create a new GitHub repository"""
     if not GITHUB_TOKEN:
@@ -74,7 +72,6 @@ def create_repository(name: str, description: str = "", private: bool = False, a
         return f"❌ HTTP error {e.response.status_code}: {e.response.text}"
     except Exception as e:
         return f"❌ Error creating repository: {str(e)}"
-
 
 def get_repository_contents(owner: str, repo: str, path: str = "") -> str:
     """Get contents of a repository directory or file"""

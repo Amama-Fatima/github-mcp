@@ -1,8 +1,5 @@
 import httpx
-from datetime import datetime, timezone
-from typing import Dict, List, Optional
 from ..config import GITHUB_TOKEN, GITHUB_HEADERS, TIMEOUT
-
 
 def smart_issue_triage(owner: str, repo: str, issue_number: int) -> dict:
     """

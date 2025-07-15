@@ -1,7 +1,6 @@
 import httpx
 from ..config import GITHUB_TOKEN, GITHUB_HEADERS, TIMEOUT
 
-
 def create_pull_request(owner: str, repo: str, title: str, body: str, head: str, base: str = "main") -> str:
     """Create a pull request"""
     if not GITHUB_TOKEN:
@@ -33,7 +32,6 @@ def create_pull_request(owner: str, repo: str, title: str, body: str, head: str,
         return f"❌ HTTP error {e.response.status_code}: {e.response.text}"
     except Exception as e:
         return f"❌ Error creating pull request: {str(e)}"
-
 
 def create_branch(owner: str, repo: str, branch_name: str, from_branch: str = "main") -> str:
     """Create a new branch from an existing branch"""

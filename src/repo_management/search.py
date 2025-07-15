@@ -4,7 +4,6 @@ Smart repository search functionality for GitHub MCP server.
 import httpx
 from ..config import GITHUB_TOKEN, GITHUB_HEADERS, TIMEOUT
 
-
 def search_repositories(query: str = "", language: str = "", topic: str = "", 
                        sort: str = "updated", order: str = "desc", 
                        limit: int = 10, user: str = "") -> dict:
@@ -84,7 +83,6 @@ def search_repositories(query: str = "", language: str = "", topic: str = "",
             "error": "Exception occurred while searching repositories",
             "details": str(e)
         }
-
 
 def get_starred_repositories(username: str, limit: int = 10) -> dict:
     """Get user's starred repositories in structured JSON"""

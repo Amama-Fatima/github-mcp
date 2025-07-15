@@ -1,7 +1,6 @@
 import httpx
 from datetime import datetime, timezone, timedelta
-from typing import Dict, List, Any
-from collections import defaultdict
+from typing import Dict, Any
 from ..config import GITHUB_TOKEN, GITHUB_HEADERS, TIMEOUT
 
 

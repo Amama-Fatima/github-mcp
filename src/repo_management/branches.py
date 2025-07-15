@@ -5,7 +5,6 @@ import httpx
 from datetime import datetime, timezone
 from ..config import GITHUB_TOKEN, GITHUB_HEADERS, TIMEOUT
 
-
 def get_branch_status_overview(owner: str, repo: str, limit: int = 10) -> dict:
     """
     Get comprehensive branch status overview for a repository (structured JSON)
@@ -136,7 +135,6 @@ def get_branch_status_overview(owner: str, repo: str, limit: int = 10) -> dict:
             "error": "Exception occurred while fetching branch status",
             "details": str(e)
         }
-
 
 def get_branch_comparison(owner: str, repo: str, base_branch: str, compare_branch: str) -> dict:
     """Compare two branches and return a structured JSON summary"""
