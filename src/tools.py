@@ -2,6 +2,7 @@
 Tool registration module for the GitHub MCP server.
 """
 from mcp.server.fastmcp import FastMCP
+from typing import List, Dict, Any
 from .repos import list_repositories, create_repository, get_repository_contents
 from .files import create_file, update_file
 from .git import create_pull_request, create_branch
@@ -21,6 +22,19 @@ from .repo_management.branches import (
 from .repo_management.health import (
     check_repository_health,
     check_repository_dependencies
+)
+
+from .issue_and_pr_management.issues import (
+    smart_issue_triage,
+    bulk_issue_triage,
+    apply_issue_labels_tool,
+    get_issue_comments
+)
+
+from .issue_and_pr_management.pr_reviews import (
+    get_pr_review_summary,
+    get_pr_diff_summary,
+    list_open_prs_for_review
 )
 
 
@@ -163,3 +177,80 @@ def register_tools(mcp: FastMCP):
             repo: Repository name
         """
         return check_repository_dependencies(owner, repo)
+    
+
+    @mcp.tool()
+    def smart_issue_triage_tool(owner: str, repo: str, issue_number: int) -> dict:
+        """
+        Fetch issue details and provide them to Claude for intelligent analysis and categorization.
+        Returns issue data with available labels and analysis prompt for Claude to process.
+        
+        Args:
+            owner: Repository owner
+            repo: Repository name  
+            issue_number: Issue number to analyze
+        """
+        return smart_issue_triage(owner, repo, issue_number)
+
+    @mcp.tool()
+    def bulk_issue_triage_tool(owner: str, repo: str, limit: int = 10, state: str = "open") -> dict:
+        """
+        Fetch multiple issues for Claude to analyze in bulk. Provides structured data for 
+        comprehensive repository issue analysis and triage recommendations.
+        
+        Args:
+            owner: Repository owner
+            repo: Repository name
+            limit: Maximum number of issues to fetch
+            state: Issue state ('open', 'closed', 'all')
+        """
+        return bulk_issue_triage(owner, repo, limit, state)
+
+    @mcp.tool()
+    def apply_issue_labels(owner: str, repo: str, issue_number: int, labels: list) -> dict:
+        """
+        Apply labels to an issue. This is typically called by Claude after analyzing an issue.
+        
+        Args:
+            owner: Repository owner
+            repo: Repository name
+            issue_number: Issue number
+            labels: List of label names to apply
+        """
+        return apply_issue_labels_tool(owner, repo, issue_number, labels)
+
+    @mcp.tool()
+    def get_issue_comments_tool(owner: str, repo: str, issue_number: int) -> dict:
+        """
+        Get comments for an issue to provide additional context for analysis.
+        Useful for understanding the full conversation and current status.
+        
+        Args:
+            owner: Repository owner
+            repo: Repository name
+            issue_number: Issue number
+        """
+        return get_issue_comments(owner, repo, issue_number)
+    
+
+    @mcp.tool()
+    def create_pr_review_summary(owner: str, repo: str, pr_number: int) -> str:
+        """
+        Get comprehensive PR review summary with changes analysis, insights, and recommendations.
+        Analyzes files, commits, reviews, and provides actionable feedback.
+        """
+        return get_pr_review_summary(owner, repo, pr_number)
+    
+    @mcp.tool()
+    def create_pr_diff_summary(owner: str, repo: str, pr_number: int) -> str:
+        """
+        Get concise diff summary of PR changes with patch previews
+        """
+        return get_pr_diff_summary(owner, repo, pr_number)
+    
+    @mcp.tool()
+    def list_open_prs_for_reviewing(owner: str, repo: str, limit: int = 10) -> str:
+        """
+        List open PRs that need review with basic info
+        """
+        return list_open_prs_for_review(owner, repo, limit)
