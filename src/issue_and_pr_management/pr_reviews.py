@@ -461,46 +461,6 @@ def _generate_recommendations(pr_info: Dict, file_analysis: Dict, commit_analysi
     
     return recommendations
 
-
-# Additional tool functions for the MCP registration
-
-def get_pr_diff_summary(owner: str, repo: str, pr_number: int) -> Dict[str, Any]:
-    """
-    Get a concise diff summary of the PR
-    """
-    if not GITHUB_TOKEN:
-        return {"error": "⚠️ No GITHUB_TOKEN set in environment."}
-    
-    try:
-        with httpx.Client(timeout=TIMEOUT) as client:
-            # Get PR files with patch data
-            files_url = f"https://api.github.com/repos/{owner}/{repo}/pulls/{pr_number}/files"
-            files_response = client.get(files_url, headers=GITHUB_HEADERS)
-            files_response.raise_for_status()
-            files_data = files_response.json()
-        
-        summary = {
-            "total_files": len(files_data),
-            "files": []
-        }
-        
-        for file in files_data:
-            file_summary = {
-                "filename": file.get("filename"),
-                "status": file.get("status"),
-                "additions": file.get("additions", 0),
-                "deletions": file.get("deletions", 0),
-                "changes": file.get("changes", 0),
-                "patch_preview": file.get("patch", "")[:500] + "..." if len(file.get("patch", "")) > 500 else file.get("patch", "")
-            }
-            summary["files"].append(file_summary)
-        
-        return summary
-        
-    except Exception as e:
-        return {"error": f"Failed to get PR diff: {str(e)}"}
-
-
 def list_open_prs_for_review(owner: str, repo: str, limit: int = 10) -> Dict[str, Any]:
     """
     List open PRs that need review

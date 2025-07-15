@@ -3,8 +3,7 @@ Repository health checker functionality for GitHub MCP server.
 """
 import httpx
 import json
-import re
-from typing import List, Dict, Any, Optional
+from typing import List, Dict
 from datetime import datetime, timezone
 from ..config import GITHUB_TOKEN, GITHUB_HEADERS, TIMEOUT
 
@@ -414,24 +413,13 @@ def check_repository_dependencies(owner: str, repo: str) -> dict:
                 "owner": owner,
                 "repo": repo,
                 "dependency_files_found": [f["name"] for f in dependency_files],
-                "results": analysis_results
+                "results": analysis_results,
             }
 
     except httpx.HTTPStatusError as e:
         return {"error": f"HTTP error {e.response.status_code}", "details": e.response.text}
     except Exception as e:
         return {"error": "Error analyzing dependencies", "details": str(e)}
-def _analyze_dependency_file_json(filename: str, content: str) -> dict:
-    if filename == "package.json":
-        return _analyze_package_json_json(content)
-    elif filename == "requirements.txt":
-        return _analyze_requirements_txt_json(content)
-    elif filename == "Pipfile":
-        return _analyze_pipfile_json(content)
-    elif filename == "Gemfile":
-        return _analyze_gemfile_json(content)
-    else:
-        return {"note": f"No analysis implemented for {filename}"}
 
 
 def _analyze_package_json_json(content: str) -> dict:
@@ -450,6 +438,9 @@ def _analyze_package_json_json(content: str) -> dict:
             "type": "node",
             "dependencies_count": len(dependencies),
             "dev_dependencies_count": len(dev_dependencies),
+            "all_dependencies": list(dependencies.keys()),
+            "all_dev_dependencies": list(dev_dependencies.keys()),
+            "all_packages": list(dependencies.keys()) + list(dev_dependencies.keys()),
             "security_packages": found_security,
             "testing_frameworks": found_testing
         }
@@ -460,6 +451,29 @@ def _analyze_package_json_json(content: str) -> dict:
 
 def _analyze_requirements_txt_json(content: str) -> dict:
     lines = [line.strip() for line in content.splitlines() if line.strip() and not line.startswith('#')]
+    
+    # Extract package names (handle different formats like pkg==1.0, pkg>=1.0, etc.)
+    package_names = []
+    for line in lines:
+        # Handle various pip requirement formats
+        if '==' in line:
+            pkg_name = line.split('==')[0].strip()
+        elif '>=' in line:
+            pkg_name = line.split('>=')[0].strip()
+        elif '<=' in line:
+            pkg_name = line.split('<=')[0].strip()
+        elif '>' in line:
+            pkg_name = line.split('>')[0].strip()
+        elif '<' in line:
+            pkg_name = line.split('<')[0].strip()
+        elif '~=' in line:
+            pkg_name = line.split('~=')[0].strip()
+        else:
+            pkg_name = line.strip()
+        
+        if pkg_name:
+            package_names.append(pkg_name)
+    
     pinned = [line for line in lines if '==' in line]
     security_packages = ["cryptography", "pycryptodome", "bcrypt", "passlib"]
     test_packages = ["pytest", "unittest", "nose", "tox"]
@@ -471,27 +485,47 @@ def _analyze_requirements_txt_json(content: str) -> dict:
         "type": "python",
         "total_dependencies": len(lines),
         "pinned_versions": len(pinned),
+        "all_packages": package_names,
+        "raw_requirements": lines,
         "security_packages": found_security,
         "testing_frameworks": found_testing
-    }
-
-
-def _analyze_pipfile_json(content: str) -> dict:
-    return {
-        "type": "pipfile",
-        "contains_packages_section": "[packages]" in content,
-        "contains_dev_packages_section": "[dev-packages]" in content
     }
 
 
 def _analyze_gemfile_json(content: str) -> dict:
     lines = [line.strip() for line in content.splitlines() if line.strip() and not line.startswith('#')]
     gem_lines = [line for line in lines if line.startswith('gem ')]
+    
+    # Extract gem names from gem lines
+    gem_names = []
+    for line in gem_lines:
+        # Handle formats like: gem 'name', gem "name", gem 'name', '~> 1.0'
+        parts = line.split()
+        if len(parts) >= 2:
+            gem_name = parts[1].strip('\'"')
+            if gem_name:
+                gem_names.append(gem_name)
+    
     rails_gems = ["rails", "devise", "sidekiq", "puma"]
     found_rails = [line for line in gem_lines if any(gem in line.lower() for gem in rails_gems)]
 
     return {
         "type": "ruby",
         "total_gems": len(gem_lines),
+        "all_gems": gem_names,
+        "raw_gem_lines": gem_lines,
         "rails_related": found_rails
     }
+
+
+
+# Update the main analyzer function to handle more file types
+def _analyze_dependency_file_json(filename: str, content: str) -> dict:
+    if filename == "package.json":
+        return _analyze_package_json_json(content)
+    elif filename == "requirements.txt":
+        return _analyze_requirements_txt_json(content)
+    elif filename == "Gemfile":
+        return _analyze_gemfile_json(content)
+    else:
+        return {"note": f"No analysis implemented for {filename}"}    

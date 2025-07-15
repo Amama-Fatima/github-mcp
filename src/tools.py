@@ -2,21 +2,27 @@
 Tool registration module for the GitHub MCP server.
 """
 from mcp.server.fastmcp import FastMCP
-from typing import List, Dict, Any
+from typing import Dict, Any
 import json
-from .repos import list_repositories, create_repository, get_repository_contents
-from .files import create_file, update_file
-from .git import create_pull_request, create_branch
+from .repos import (
+    list_repositories,
+    create_repository,
+    get_repository_contents
+)
+from .files import (
+    create_file,
+    update_file
+)
+from .git import (
+    create_pull_request,
+    create_branch,
+)
 from .repo_management.search import (
     search_repositories, 
     get_starred_repositories, 
-    get_recent_repositories,
-    search_repositories_by_language,
-    search_repositories_by_topic
 )
 from .repo_management.branches import (
     get_branch_status_overview,
-    get_active_branches,
     get_branch_comparison
 )
 
@@ -27,14 +33,12 @@ from .repo_management.health import (
 
 from .issue_and_pr_management.issues import (
     smart_issue_triage,
-    bulk_issue_triage,
     apply_issue_labels_tool,
     get_issue_comments
 )
 
 from .issue_and_pr_management.pr_reviews import (
     get_pr_review_summary,
-    get_pr_diff_summary,
     list_open_prs_for_review
 )
 
@@ -106,21 +110,6 @@ def register_tools(mcp: FastMCP):
         return get_starred_repositories(username, limit)
 
     @mcp.tool()
-    def get_github_recent_repositories(username: str, limit: int = 10) -> dict:
-        """Get user's recently updated repositories"""
-        return get_recent_repositories(username, limit)
-
-    @mcp.tool()
-    def search_github_repositories_by_language(language: str, limit: int = 10, sort: str = "stars") -> dict:
-        """Search repositories by programming language"""
-        return search_repositories_by_language(language, limit, sort)
-
-    @mcp.tool()
-    def search_github_repositories_by_topic(topic: str, limit: int = 10, sort: str = "stars") -> dict:
-        """Search repositories by topic"""
-        return search_repositories_by_topic(topic, limit, sort)
-
-    @mcp.tool()
     def get_github_branch_status_overview(owner: str, repo: str, limit: int = 10) -> dict:
         """
         Get comprehensive branch status overview for a repository.
@@ -134,18 +123,6 @@ def register_tools(mcp: FastMCP):
         return get_branch_status_overview(owner, repo, limit)
 
     @mcp.tool()
-    def get_github_active_branches(owner: str, repo: str, days: int = 30) -> dict:
-        """
-        Get branches that have been active within the specified number of days.
-        
-        Args:
-            owner: Repository owner
-            repo: Repository name
-            days: Number of days to look back for activity
-        """
-        return get_active_branches(owner, repo, days)
-
-    @mcp.tool()
     def compare_github_branches(owner: str, repo: str, base_branch: str, compare_branch: str) -> dict:
         """
         Compare two branches and show the differences.
@@ -157,7 +134,6 @@ def register_tools(mcp: FastMCP):
             compare_branch: Branch to compare
         """
         return get_branch_comparison(owner, repo, base_branch, compare_branch)
-    
 
     @mcp.tool()
     def check_github_repository_health(owner: str, repo: str) -> dict:
@@ -184,7 +160,6 @@ def register_tools(mcp: FastMCP):
         """
         return check_repository_dependencies(owner, repo)
     
-
     @mcp.tool()
     def smart_issue_triage_tool(owner: str, repo: str, issue_number: int) -> dict:
         """
@@ -197,20 +172,6 @@ def register_tools(mcp: FastMCP):
             issue_number: Issue number to analyze
         """
         return smart_issue_triage(owner, repo, issue_number)
-
-    @mcp.tool()
-    def bulk_issue_triage_tool(owner: str, repo: str, limit: int = 10, state: str = "open") -> dict:
-        """
-        Fetch multiple issues for Claude to analyze in bulk. Provides structured data for 
-        comprehensive repository issue analysis and triage recommendations.
-        
-        Args:
-            owner: Repository owner
-            repo: Repository name
-            limit: Maximum number of issues to fetch
-            state: Issue state ('open', 'closed', 'all')
-        """
-        return bulk_issue_triage(owner, repo, limit, state)
 
     @mcp.tool()
     def apply_issue_labels(owner: str, repo: str, issue_number: int, labels: list) -> dict:
@@ -238,9 +199,8 @@ def register_tools(mcp: FastMCP):
         """
         return get_issue_comments(owner, repo, issue_number)
     
-
     @mcp.tool()
-    def create_pr_review_summary(owner: str, repo: str, pr_number: int) -> str:
+    def create_pr_review_summary(owner: str, repo: str, pr_number: int) -> Dict[str, Any]:
         """
         Get comprehensive PR review summary with changes analysis, insights, and recommendations.
         Analyzes files, commits, reviews, and provides actionable feedback.
@@ -248,27 +208,21 @@ def register_tools(mcp: FastMCP):
         return get_pr_review_summary(owner, repo, pr_number)
     
     @mcp.tool()
-    def create_pr_diff_summary(owner: str, repo: str, pr_number: int) -> str:
-        """
-        Get concise diff summary of PR changes with patch previews
-        """
-        return get_pr_diff_summary(owner, repo, pr_number)
-    
-    @mcp.tool()
-    def list_open_prs_for_reviewing(owner: str, repo: str, limit: int = 10) -> str:
+    def list_open_prs_for_reviewing(owner: str, repo: str, limit: int = 10) -> Dict[str, Any]:
         """
         List open PRs that need review with basic info
         """
         return list_open_prs_for_review(owner, repo, limit)
     
     @mcp.tool()
-    def get_user_github_analytics(username: str, days: int = 30, include_private: bool = False) -> str:
+    def get_user_github_analytics(username: str, days: int = 30, include_private: bool = False) -> Dict[str, Any]:
         """Get comprehensive contribution analytics for a GitHub user"""
         result = get_user_contribution_analytics(username, days, include_private)
         return json.dumps(result, indent=2)
 
     @mcp.tool()
-    def get_repository_github_analytics(owner: str, repo: str, days: int = 30) -> str:
+    def get_repository_github_analytics(owner: str, repo: str, days: int = 30) ->  Dict[str, Any]:
         """Get contribution analytics for a specific GitHub repository"""
         result = get_repository_contribution_analytics(owner, repo, days)
         return json.dumps(result, indent=2)
+    
