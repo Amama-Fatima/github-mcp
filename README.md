@@ -142,26 +142,6 @@ The server is organized into several specialized modules:
 - **`contribution/`** - Analytics and contribution tracking
 - **`tools.py`** - Central tool registration and MCP integration
 
-## 🤝 Contributing
-
-Contributions are welcome! This project provides a foundation for AI-powered GitHub automation and can be extended with additional tools and capabilities.
-
-### Development Setup
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add appropriate tests
-5. Submit a pull request
-
-## 📝 License
-
-This project is open source and available under the MIT License.
-
-## 🔗 Links
-
-- [Model Context Protocol Documentation](https://modelcontextprotocol.io)
-- [GitHub API Documentation](https://docs.github.com/en/rest)
-- [FastMCP Documentation](https://github.com/jlowin/fastmcp)
 
 ## 🙏 Acknowledgments
 
