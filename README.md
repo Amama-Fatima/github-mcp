@@ -1,6 +1,8 @@
 # GitHub MCP Server
 
-A comprehensive Model Context Protocol (MCP) server that provides AI agents with powerful GitHub integration capabilities. This server enables AI systems to interact with GitHub repositories, manage code, handle issues, analyze pull requests, and perform advanced repository operations.
+A Model Context Protocol (MCP) server that provides AI agents with powerful GitHub integration capabilities. This server enables **Claude Desktop** to interact with GitHub repositories, manage code, handle issues, analyze pull requests, and perform advanced repository operations.
+
+### Demo Video
 
 https://github.com/user-attachments/assets/751d371c-b067-492d-bdc8-84a8217e0e1c
 
@@ -99,38 +101,6 @@ python main.py
 ### Analytics Tools
 - `get_user_github_analytics` - Detailed user contribution analytics
 - `get_repository_github_analytics` - Repository-specific analytics and insights
-
-## 📊 Usage Examples
-
-### Repository Analysis
-```python
-# Check repository health
-health_check = check_github_repository_health("owner", "repo")
-
-# Analyze dependencies
-dependencies = analyze_github_repository_dependencies("owner", "repo")
-
-# Get repository analytics
-analytics = get_repository_github_analytics("owner", "repo", days=30)
-```
-
-### Smart Issue Management
-```python
-# Analyze an issue with AI
-issue_analysis = smart_issue_triage_tool("owner", "repo", issue_number)
-
-# Apply labels based on analysis
-apply_issue_labels("owner", "repo", issue_number, ["bug", "high-priority"])
-```
-
-### PR Review Automation
-```python
-# Generate comprehensive PR review
-review_summary = create_pr_review_summary("owner", "repo", pr_number)
-
-# List PRs needing review
-open_prs = list_open_prs_for_reviewing("owner", "repo")
-```
 
 ## 🏗️ Architecture
 
