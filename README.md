@@ -2,8 +2,7 @@
 
 A comprehensive Model Context Protocol (MCP) server that provides AI agents with powerful GitHub integration capabilities. This server enables AI systems to interact with GitHub repositories, manage code, handle issues, analyze pull requests, and perform advanced repository operations.
 
-▶️ [Watch Demo Video](https://github.com/Amama-Fatima/github-mcp/blob/main/Video%20Project.mp4?raw=true)
-
+https://github.com/user-attachments/assets/751d371c-b067-492d-bdc8-84a8217e0e1c
 
 ## 🚀 Features
 
