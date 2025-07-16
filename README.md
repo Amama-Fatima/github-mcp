@@ -36,6 +36,28 @@ https://github.com/user-attachments/assets/751d371c-b067-492d-bdc8-84a8217e0e1c
 - **Repository Analytics**: Comprehensive repository activity and contribution analysis
 - **Trend Analysis**: Track contribution patterns over customizable time periods
 
+
+## Project Structure 
+
+github-mcp/
+├── src/
+│   ├── tools.py                    # Main tool registration module
+│   ├── repo_management/
+│   │   ├── repos.py               # Repository operations
+│   │   ├── git.py                 # Git operations
+│   │   ├── search.py              # Repository search
+│   │   ├── branches.py            # Branch management
+│   │   └── health.py              # Repository health checks
+│   ├── file_management/
+│   │   └── files.py               # File operations
+│   ├── issue_and_pr_management/
+│   │   ├── issues.py              # Issue management
+│   │   └── pr_reviews.py          # Pull request reviews
+│   └── contribution/
+│       └── contribution_analytics.py # Contribution analytics
+└── README.md
+
+
 ## 🛠️ Installation
 
 ### Prerequisites
@@ -101,16 +123,6 @@ python main.py
 ### Analytics Tools
 - `get_user_github_analytics` - Detailed user contribution analytics
 - `get_repository_github_analytics` - Repository-specific analytics and insights
-
-## 🏗️ Architecture
-
-The server is organized into several specialized modules:
-
-- **`repo_management/`** - Repository operations, search, and health checks
-- **`file_management/`** - File creation, updates, and content retrieval
-- **`issue_and_pr_management/`** - Issue triage, PR reviews, and workflow management
-- **`contribution/`** - Analytics and contribution tracking
-- **`tools.py`** - Central tool registration and MCP integration
 
 
 ## 🙏 Acknowledgments
