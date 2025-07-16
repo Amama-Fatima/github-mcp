@@ -55,6 +55,9 @@ github-mcp/
 │   │   └── pr_reviews.py          # Pull request reviews
 │   └── contribution/
 │       └── contribution_analytics.py # Contribution analytics
+├── main.py
+├── __init__.py
+├── requirements.txt
 └── README.md
 
 
