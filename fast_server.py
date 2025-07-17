@@ -22,6 +22,20 @@ app = FastAPI(
 async def health_check():
     return {"status": "healthy", "service": "GitHubManager MCP Server"}
 
+@app.get("/debug/env")
+async def debug_env():
+    """Debug endpoint to check environment variables"""
+    github_token = os.environ.get("GITHUB_TOKEN")
+    
+    return {
+        "github_token_exists": bool(github_token),
+        "github_token_length": len(github_token) if github_token else 0,
+        "github_token_prefix": github_token[:4] + "..." if github_token and len(github_token) > 4 else None,
+        "port": os.environ.get("PORT", "10000"),
+        "env_vars_count": len(os.environ),
+        "all_env_vars": list(os.environ.keys())
+    }
+
 # Mount the MCP server at the root path
 app.mount("/", github_mcp.streamable_http_app())
 
