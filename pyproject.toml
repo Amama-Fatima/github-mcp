@@ -14,5 +14,7 @@ dependencies = [
     "certifi",
     "click",
     "colorama",
-    "h11"
+    "h11",
+    "mcp>=1.11.0",
+    "fastmcp>=0.1.0"
 ]
