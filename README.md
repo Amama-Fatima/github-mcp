@@ -39,6 +39,7 @@ https://github.com/user-attachments/assets/751d371c-b067-492d-bdc8-84a8217e0e1c
 
 ## Project Structure 
 
+```
 github-mcp/
 ├── src/
 │   ├── tools.py                    # Main tool registration module
@@ -57,9 +58,8 @@ github-mcp/
 │       └── contribution_analytics.py # Contribution analytics
 ├── main.py
 ├── __init__.py
-├── requirements.txt
 └── README.md
-
+```
 
 ## 🛠️ Installation
 
