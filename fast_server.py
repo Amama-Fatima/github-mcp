@@ -25,7 +25,7 @@ async def health_check():
 # Mount the MCP server at the root path
 app.mount("/", github_mcp.streamable_http_app())
 
-PORT = int(os.environ.get("PORT", 8000))
+PORT = int(os.environ.get("PORT", 10000))
 
 if __name__ == "__main__":
     import uvicorn
