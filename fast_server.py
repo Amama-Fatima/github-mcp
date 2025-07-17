@@ -22,7 +22,7 @@ app = FastAPI(
 async def health_check():
     return {"status": "healthy", "service": "GitHubManager MCP Server"}
 
-@app.get("/debug/env")
+@app.get("/debug")
 async def debug_env():
     """Debug endpoint to check environment variables"""
     github_token = os.environ.get("GITHUB_TOKEN")
