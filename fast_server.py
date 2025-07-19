@@ -59,8 +59,8 @@ async def login_redirect():
     async with sso:
         return await sso.get_login_redirect()
     
+app.mount("/", github_mcp.streamable_http_app())
 
-@app.get("/auth/callback")
 @app.get("/auth/callback")
 async def auth_callback(request: Request):
     async with sso:
@@ -87,7 +87,6 @@ async def auth_callback(request: Request):
 
 
 # Mount the MCP server at the root path
-app.mount("/", github_mcp.streamable_http_app())
 
 PORT = int(os.environ.get("PORT", 10000))
 
