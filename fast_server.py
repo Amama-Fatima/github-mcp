@@ -66,6 +66,7 @@ async def auth_callback(request: Request):
     async with sso:
         try:
             user = await sso.verify_and_process(request)
+            _token = sso.access_token
         except Exception as e:
             import traceback
             traceback.print_exc()
@@ -79,7 +80,8 @@ async def auth_callback(request: Request):
             "name": user.display_name,
             # "access_token": user.access_token
         },
-        "obj": user
+        "obj": user,
+        "_token": _token
     }
 
 
