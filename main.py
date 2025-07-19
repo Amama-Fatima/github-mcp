@@ -36,24 +36,25 @@ def create_app() -> FastMCP:
             yield
     
     mcp = FastMCP(
-        name="GitHubMCP",
-        lifespan=lifespan,
-        auth_provider=sso,
-        auth=AuthSettings(
-            issuer_url=os.environ["ROOT_URL"],
-            resource_server_url=os.environ["ROOT_URL"],
-            required_scopes=["repo", "user"],
-            client_registration_options=ClientRegistrationOptions(
-                enabled=True,
-                valid_scopes=["repo", "user"],
-                default_scopes=["repo", "user"],
-            ),
-            revocation_options=RevocationOptions(
-                enabled=True,
-                revoke_url="https://github.com/settings/connections/applications/" + os.environ["GITHUB_CLIENT_ID"]
-            )
+    name="GitHubMCP",
+    lifespan=lifespan,
+    auth_server_provider=sso,
+    auth=AuthSettings(
+        issuer_url=os.environ["ROOT_URL"],
+        resource_server_url=os.environ["ROOT_URL"],
+        required_scopes=["repo", "user"],
+        client_registration_options=ClientRegistrationOptions(
+            enabled=True,
+            valid_scopes=["repo", "user"],
+            default_scopes=["repo", "user"],
+        ),
+        revocation_options=RevocationOptions(
+            enabled=True,
+            revoke_url=f"https://github.com/settings/connections/applications/{os.environ['GITHUB_CLIENT_ID']}"
         )
     )
+    )
+
     
     register_tools(mcp)
     
