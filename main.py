@@ -2,6 +2,8 @@ from mcp.server.fastmcp import FastMCP
 from fastapi import Request
 from fastapi_sso.sso.github import GithubSSO
 from fastapi.responses import JSONResponse
+from starlette.requests import Request as StarletteRequest
+from starlette.responses import JSONResponse as StarletteJSONResponse
 from src.tools import register_tools
 import contextlib
 import uvicorn
@@ -42,34 +44,32 @@ def create_app() -> FastMCP:
     
     register_tools(mcp)
     
-    fastapi_app = mcp.streamable_http_app()
-    
-    @fastapi_app.get("/health")
-    async def health_check():
-        return {"status": "healthy", "service": "GitHubManager MCP Server"}
+    @mcp.custom_route("/health", methods=["GET"])
+    async def health_check(request):
+        return StarletteJSONResponse({"status": "healthy", "service": "GitHubManager MCP Server"})
 
-    @fastapi_app.get("/debug")
-    async def debug_env():
+    @mcp.custom_route("/debug", methods=["GET"])
+    async def debug_env(request):
         """Debug endpoint to check environment variables"""
         github_token = os.environ.get("GITHUB_TOKEN")
         
-        return {
+        return StarletteJSONResponse({
             "github_token_exists": bool(github_token),
             "github_token_length": len(github_token) if github_token else 0,
             "github_token_prefix": github_token[:4] + "..." if github_token and len(github_token) > 4 else None,
             "port": os.environ.get("PORT", "10000"),
             "env_vars_count": len(os.environ),
             "all_env_vars": list(os.environ.keys())
-        }
+        })
 
-    @fastapi_app.get("/auth/login")
-    async def login_redirect():
+    @mcp.custom_route("/auth/login", methods=["GET"])
+    async def login_redirect(request):
         """Start GitHub OAuth flow."""
         async with sso:
             return await sso.get_login_redirect()
 
-    @fastapi_app.get("/auth/callback")
-    async def auth_callback(request: Request):
+    @mcp.custom_route("/auth/callback", methods=["GET"])
+    async def auth_callback(request: StarletteRequest):
         """Handle GitHub OAuth callback."""
         async with sso:
             try:
@@ -78,12 +78,12 @@ def create_app() -> FastMCP:
             except Exception as e:
                 import traceback
                 traceback.print_exc()
-                return JSONResponse(
+                return StarletteJSONResponse(
                     status_code=400,
                     content={"error": str(e)}
                 )
         
-        return {
+        return StarletteJSONResponse({
             "msg": "Auth successful",
             "user": {
                 "id": user.id,
@@ -92,7 +92,7 @@ def create_app() -> FastMCP:
             },
             "obj": user,
             "_token": _token
-        }
+        })
     
     return mcp
 
