@@ -42,11 +42,13 @@ def create_app() -> FastMCP:
     
     register_tools(mcp)
     
-    @mcp.get("/health")
+    fastapi_app = mcp.streamable_http_app()
+    
+    @fastapi_app.get("/health")
     async def health_check():
         return {"status": "healthy", "service": "GitHubManager MCP Server"}
 
-    @mcp.get("/debug")
+    @fastapi_app.get("/debug")
     async def debug_env():
         """Debug endpoint to check environment variables"""
         github_token = os.environ.get("GITHUB_TOKEN")
@@ -60,13 +62,13 @@ def create_app() -> FastMCP:
             "all_env_vars": list(os.environ.keys())
         }
 
-    @mcp.get("/auth/login")
+    @fastapi_app.get("/auth/login")
     async def login_redirect():
         """Start GitHub OAuth flow."""
         async with sso:
             return await sso.get_login_redirect()
 
-    @mcp.get("/auth/callback")
+    @fastapi_app.get("/auth/callback")
     async def auth_callback(request: Request):
         """Handle GitHub OAuth callback."""
         async with sso:
