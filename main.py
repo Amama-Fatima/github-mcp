@@ -40,7 +40,8 @@ def create_app() -> FastMCP:
         lifespan=lifespan,
         auth_provider=sso,
         auth=AuthSettings(
-            issuer_url=os.environ.get("ROOT_URL", "https://your-deployed-url.com"),
+            issuer_url=os.environ["ROOT_URL"],
+            resource_server_url=os.environ["ROOT_URL"],
             required_scopes=["repo", "user"],
             client_registration_options=ClientRegistrationOptions(
                 enabled=True,
