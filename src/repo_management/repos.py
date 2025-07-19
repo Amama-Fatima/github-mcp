@@ -1,11 +1,16 @@
 import httpx
-from ..config import GITHUB_TOKEN, GITHUB_HEADERS, TIMEOUT
+from mcp.server.fastmcp import Context
 
-def list_repositories(username: str, type: str = "all") -> str:
+from ..config import GITHUB_TOKEN, TIMEOUT
+
+def list_repositories(token, username: str, type: str = "all") -> str:
     """List user's repositories. Type can be 'all', 'owner', 'public', 'private'"""
-    if not GITHUB_TOKEN:
-        return "⚠️ No GITHUB_TOKEN set in environment."
     
+    GITHUB_HEADERS = {
+    "Authorization": f"token {token}",
+    "Accept": "application/vnd.github.v3+json"
+    }
+
     url = f"https://api.github.com/user/repos"
     params = {"type": type, "sort": "updated", "per_page": 20}
     

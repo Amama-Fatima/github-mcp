@@ -1,9 +1,10 @@
-from mcp.server.fastmcp import FastMCP
+from mcp.server.fastmcp import FastMCP, Context
 from fastapi import Request
 from fastapi_sso.sso.github import GithubSSO
 from fastapi.responses import JSONResponse
 from starlette.requests import Request as StarletteRequest
 from starlette.responses import JSONResponse as StarletteJSONResponse
+from mcp.server.auth.settings import AuthSettings, ClientRegistrationOptions, RevocationOptions
 from src.tools import register_tools
 import contextlib
 import uvicorn
@@ -35,11 +36,22 @@ def create_app() -> FastMCP:
             yield
     
     mcp = FastMCP(
-        name="GitHubManager",
-        title="GitHub MCP Server",
-        description="A Model Context Protocol server for GitHub operations",
-        version="1.0.0",
-        lifespan=lifespan
+        name="GitHubMCP",
+        lifespan=lifespan,
+        auth_provider=sso,
+        auth=AuthSettings(
+            issuer_url=os.environ.get("ROOT_URL", "https://your-deployed-url.com"),
+            required_scopes=["repo", "user"],
+            client_registration_options=ClientRegistrationOptions(
+                enabled=True,
+                valid_scopes=["repo", "user"],
+                default_scopes=["repo", "user"],
+            ),
+            revocation_options=RevocationOptions(
+                enabled=True,
+                revoke_url="https://github.com/settings/connections/applications/" + os.environ["GITHUB_CLIENT_ID"]
+            )
+        )
     )
     
     register_tools(mcp)
@@ -69,12 +81,12 @@ def create_app() -> FastMCP:
             return await sso.get_login_redirect()
 
     @mcp.custom_route("/auth/callback", methods=["GET"])
-    async def auth_callback(request: StarletteRequest):
+    async def auth_callback(request: Request, ctx: Context):
         """Handle GitHub OAuth callback."""
         async with sso:
             try:
                 user = await sso.verify_and_process(request)
-                _token = sso.access_token
+                token = sso.access_token
             except Exception as e:
                 import traceback
                 traceback.print_exc()
@@ -82,7 +94,10 @@ def create_app() -> FastMCP:
                     status_code=400,
                     content={"error": str(e)}
                 )
-        
+        ctx.session["oauth_token"] = token
+        ctx.session["user_id"] = user.id
+        ctx.session["user"] = user
+
         user_data = {
             "id": user.id,
             "email": user.email,
@@ -94,7 +109,7 @@ def create_app() -> FastMCP:
         return StarletteJSONResponse({
             "msg": "Auth successful",
             "user": user_data,
-            "token": _token
+            "token": token
         })
     
     return mcp
