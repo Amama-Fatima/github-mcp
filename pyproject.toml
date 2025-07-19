@@ -16,5 +16,6 @@ dependencies = [
     "colorama",
     "h11",
     "mcp>=1.11.0",
-    "fastmcp>=0.1.0"
+    "fastmcp>=0.1.0",
+    "fastapi-sso>=0.18.0"
 ]
