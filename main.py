@@ -83,15 +83,18 @@ def create_app() -> FastMCP:
                     content={"error": str(e)}
                 )
         
+        user_data = {
+            "id": user.id,
+            "email": user.email,
+            "name": user.display_name,
+            "login": getattr(user, 'login', None),
+            "avatar_url": getattr(user, 'avatar_url', None),  
+        }
+        
         return StarletteJSONResponse({
             "msg": "Auth successful",
-            "user": {
-                "id": user.id,
-                "email": user.email,
-                "name": user.display_name,
-            },
-            "obj": user,
-            "_token": _token
+            "user": user_data,
+            "token": _token
         })
     
     return mcp
