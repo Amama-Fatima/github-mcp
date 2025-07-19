@@ -1,7 +1,23 @@
+from fastapi import FastAPI, Request
+from fastapi_sso.sso.github import GithubSSO
+from fastapi.responses import JSONResponse
 import contextlib
-from fastapi import FastAPI
 from main import create_app
 import os
+from dotenv import load_dotenv
+load_dotenv()
+
+GITHUB_CLIENT_ID = os.environ["GITHUB_CLIENT_ID"]
+GITHUB_CLIENT_SECRET = os.environ["GITHUB_CLIENT_SECRET"]
+REDIRECT_URI = os.environ.get("GITHUB_REDIRECT_URI",
+                    "https://github-mcp-server-jeib.onrender.com/auth/callback")
+
+sso = GithubSSO(
+    client_id=GITHUB_CLIENT_ID,
+    client_secret=GITHUB_CLIENT_SECRET,
+    redirect_uri=REDIRECT_URI,
+    allow_insecure_http=False
+)
 
 github_mcp = create_app()
 
@@ -35,6 +51,37 @@ async def debug_env():
         "env_vars_count": len(os.environ),
         "all_env_vars": list(os.environ.keys())
     }
+
+@app.get("/auth/login")
+async def login_redirect():
+    """Start GitHub OAuth flow."""
+    async with sso:
+        return await sso.get_login_redirect()
+    
+
+@app.get("/auth/callback")
+@app.get("/auth/callback")
+async def auth_callback(request: Request):
+    async with sso:
+        try:
+            user = await sso.verify_and_process(request)
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return {"error": str(e)}
+    
+    return {
+        "msg": "Auth successful",
+        "user": {
+            "id": user.id,
+            "email": user.email,
+            "name": user.display_name,
+            # "access_token": user.access_token
+        },
+        "obj": user
+    }
+
+
 
 # Mount the MCP server at the root path
 app.mount("/", github_mcp.streamable_http_app())
