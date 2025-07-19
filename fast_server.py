@@ -16,6 +16,7 @@ sso = GithubSSO(
     client_id=GITHUB_CLIENT_ID,
     client_secret=GITHUB_CLIENT_SECRET,
     redirect_uri=REDIRECT_URI,
+    scope=["repo", "user"],
     allow_insecure_http=False
 )
 
