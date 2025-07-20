@@ -1,19 +1,14 @@
 import httpx
 from mcp.server.fastmcp import Context
 
-from ..config import GITHUB_TOKEN, TIMEOUT
+from ..config import GITHUB_TOKEN, TIMEOUT, GITHUB_HEADERS
 
-def list_repositories(token, username: str, type: str = "all") -> str:
+def list_repositories( username: str, type: str = "all") -> str:
     """List user's repositories. Type can be 'all', 'owner', 'public', 'private'"""
-    
-    GITHUB_HEADERS = {
-    "Authorization": f"token {token}",
-    "Accept": "application/vnd.github.v3+json"
-    }
-
     url = f"https://api.github.com/user/repos"
     params = {"type": type, "sort": "updated", "per_page": 20}
-    
+
+
     try:
         with httpx.Client(timeout=TIMEOUT) as client:
             r = client.get(url, headers=GITHUB_HEADERS, params=params)

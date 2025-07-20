@@ -53,12 +53,9 @@ def register_tools(mcp: FastMCP):
     """Register all GitHub tools with the MCP server"""
     
     @mcp.tool()
-    def list_github_repositories(ctx: Context, username: str, type: str = "all") -> str:
+    def list_github_repositories( username: str, type: str = "all") -> str:
         """List user's repositories. Type can be 'all', 'owner', 'public', 'private'"""
-        token = ctx.session['oauth_token']
-        if not token:
-            return "❗ Authenticate via /auth/login first."
-        return list_repositories(token, username, type)
+        return list_repositories(username, type)
 
     @mcp.tool()
     def create_github_repository(name: str, description: str = "", private: bool = False, auto_init: bool = True) -> str:
